@@ -71,6 +71,7 @@ Repository = "https://github.com/emanuele-artioli/Upscale-A-Video"
 Paper = "https://arxiv.org/abs/2312.06640"
 
 [tool.setuptools.packages.find]
+where = ["."]
 include = ["upscale_a_video*", "models_video*", "llava*", "configs*"]
 
 [tool.setuptools.package-data]
