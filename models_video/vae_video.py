@@ -18,7 +18,11 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from diffusers.utils import BaseOutput, randn_tensor
+from diffusers.utils import BaseOutput
+try:
+    from diffusers.utils import randn_tensor
+except ImportError:
+    from diffusers.utils.torch_utils import randn_tensor
 
 try:
     from .unet_blocks import (

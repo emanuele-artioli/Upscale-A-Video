@@ -25,7 +25,11 @@ from transformers import CLIPImageProcessor, CLIPTextModel, CLIPTokenizer
 
 from diffusers.loaders import TextualInversionLoaderMixin
 from diffusers.schedulers import DDPMScheduler
-from diffusers.utils import deprecate, is_accelerate_available, is_accelerate_version, logging, randn_tensor
+from diffusers.utils import deprecate, is_accelerate_available, is_accelerate_version, logging
+try:
+    from diffusers.utils import randn_tensor
+except ImportError:
+    from diffusers.utils.torch_utils import randn_tensor
 from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 from diffusers.pipelines.stable_diffusion import StableDiffusionPipelineOutput
 

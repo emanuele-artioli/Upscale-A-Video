@@ -21,7 +21,11 @@ import imageio
 import numpy as np
 
 from diffusers.configuration_utils import ConfigMixin, register_to_config
-from diffusers.utils import BaseOutput, apply_forward_hook
+from diffusers.utils import BaseOutput
+try:
+    from diffusers.utils import apply_forward_hook
+except ImportError:
+    from diffusers.utils.accelerate_utils import apply_forward_hook
 from diffusers.models.modeling_utils import ModelMixin
 # from diffusers.models.vae import Decoder, DecoderOutput, DiagonalGaussianDistribution, Encoder
 try:
