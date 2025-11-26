@@ -26,6 +26,8 @@ from models_video.pipeline_upscale_a_video import VideoUpscalePipeline
 from models_video.scheduling_ddim import DDIMScheduler
 from models_video.color_correction import wavelet_reconstruction, adaptive_instance_normalization
 
+from .download import ensure_models_downloaded, check_models_exist
+
 
 class UpscaleAVideo:
     """
@@ -50,11 +52,13 @@ class UpscaleAVideo:
         device: str = "cuda:0",
         use_video_vae: bool = False,
         use_propagation: bool = False,
+        auto_download: bool = True,
     ):
         self.device = device
         self.pretrained_path = Path(pretrained_path)
         self.use_video_vae = use_video_vae
         self.use_propagation = use_propagation
+        self.auto_download = auto_download
         
         self._pipeline = None
         self._raft = None
@@ -64,8 +68,19 @@ class UpscaleAVideo:
         """Load all models into memory. Called automatically on first use if not called explicitly."""
         if self._loaded:
             return
-            
+        
         pretrained_path = self.pretrained_path
+        
+        # Check if models exist, download if necessary
+        if not check_models_exist(pretrained_path):
+            if self.auto_download:
+                ensure_models_downloaded(pretrained_path, quiet=False)
+            else:
+                raise FileNotFoundError(
+                    f"Pretrained models not found at {pretrained_path}. "
+                    f"Set auto_download=True to download automatically, or manually download from: "
+                    f"https://drive.google.com/drive/folders/1O8pbeR1hsRlFUU8O4EULe-lOKNGEWZl1"
+                )
         
         # Load the pipeline (includes text_encoder, tokenizer, low_res_scheduler)
         self._pipeline = VideoUpscalePipeline.from_pretrained(

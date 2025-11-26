@@ -6,7 +6,7 @@ This package provides a simple API to upscale video frames using the Upscale-A-V
 Example usage:
     from upscale_a_video import UpscaleAVideo
     
-    # Initialize the upscaler
+    # Initialize the upscaler (will auto-download models if not present)
     upscaler = UpscaleAVideo(
         pretrained_path="./pretrained_models/upscale_a_video",
         device="cuda:0"
@@ -22,6 +22,7 @@ Example usage:
 """
 
 from .upscaler import UpscaleAVideo
+from .download import download_models, check_models_exist, ensure_models_downloaded
 
 __version__ = "0.1.0"
-__all__ = ["UpscaleAVideo"]
+__all__ = ["UpscaleAVideo", "download_models", "check_models_exist", "ensure_models_downloaded"]
