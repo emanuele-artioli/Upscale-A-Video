@@ -59,6 +59,20 @@
 ![overall_structure](assets/pipeline.png)
 
 ## 🔧 Dependencies and Installation
+
+### Option 1: Install as a Package (Recommended)
+
+```bash
+# Clone the repository
+git clone https://github.com/sczhou/Upscale-A-Video.git
+cd Upscale-A-Video
+
+# Install as a package in your virtual environment
+pip install -e .
+```
+
+### Option 2: Traditional Setup
+
 1. Clone Repo
     ```bash
     git clone https://github.com/sczhou/Upscale-A-Video.git
@@ -75,9 +89,11 @@
     pip install -r requirements.txt
     ```
 
-3. Download Models
+### Download Models
 
-   (a) Download pretrained models and configs from [Google Drive](https://drive.google.com/drive/folders/1O8pbeR1hsRlFUU8O4EULe-lOKNGEWZl1?usp=sharing) and put them under the `pretrained_models/upscale_a_video` folder.
+### Download Models
+
+Download pretrained models and configs from [Google Drive](https://drive.google.com/drive/folders/1O8pbeR1hsRlFUU8O4EULe-lOKNGEWZl1?usp=sharing) and put them under the `pretrained_models/upscale_a_video` folder.
 
    The [`pretrained_models`](./pretrained_models) directory structure should be arranged as:
 
@@ -103,7 +119,67 @@
     (a) (Optional) LLaVA can be downloaded automatically when set `--use_llava` to `True`, for users with access to huggingface.
 
 
-## ☕️ Quick Inference
+## 📦 Python Package Usage
+
+After installing as a package, you can use Upscale-A-Video directly in your Python code:
+
+```python
+from upscale_a_video import UpscaleAVideo
+import numpy as np
+
+# Initialize the upscaler
+upscaler = UpscaleAVideo(
+    pretrained_path="./pretrained_models/upscale_a_video",
+    device="cuda:0",
+    use_video_vae=False,
+    use_propagation=False,
+)
+
+# Your input frames: list of numpy arrays (H, W, C), PIL Images, 
+# or numpy array (T, H, W, C) in RGB, uint8 [0-255]
+frames = [...]  # Your video frames
+
+# Upscale frames (4x resolution)
+upscaled_frames = upscaler.upscale_frames(
+    frames,
+    noise_level=120,        # [0-200], higher = better quality, lower fidelity
+    guidance_scale=6.0,     # Higher = more details
+    inference_steps=30,     # More steps = higher quality
+    output_format="numpy"   # "numpy", "pil", "torch", "numpy_list", "pil_list"
+)
+
+# upscaled_frames is now 4x the input resolution
+```
+
+### Available Options
+
+```python
+upscaled = upscaler.upscale_frames(
+    frames,
+    prompt="",                      # Optional text prompt
+    noise_level=120,                # Noise level [0-200]
+    guidance_scale=6.0,             # CFG scale
+    inference_steps=30,             # Denoising steps
+    propagation_steps=[24, 26, 28], # For temporal consistency (requires use_propagation=True)
+    positive_prompt="best quality, extremely detailed",
+    negative_prompt="blur, worst quality",
+    color_fix="None",               # "None", "AdaIn", or "Wavelet"
+    tile_size=256,                  # For large frames
+    seed=10,                        # Random seed
+    output_format="numpy",          # Output format
+)
+```
+
+### Context Manager
+
+```python
+# Automatically unloads models when done
+with UpscaleAVideo("./pretrained_models/upscale_a_video") as upscaler:
+    result = upscaler.upscale_frames(frames)
+```
+
+
+## ☕️ Quick Inference (CLI)
 
 The `--input_path` can be either the path to a single video or a folder containing multiple videos.
 

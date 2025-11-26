@@ -29,8 +29,8 @@ from diffusers.utils import deprecate, is_accelerate_available, is_accelerate_ve
 from diffusers.pipelines.pipeline_utils import DiffusionPipeline
 from diffusers.pipelines.stable_diffusion import StableDiffusionPipelineOutput
 
-from models_video.scheduling_ddim import DDIMScheduler
-from models_video import AutoencoderKLVideo, UNetVideoModel, Propagation
+from .scheduling_ddim import DDIMScheduler
+from . import AutoencoderKLVideo, UNetVideoModel, Propagation
 
 from einops import rearrange
 
