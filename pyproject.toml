@@ -67,12 +67,11 @@ dev = [
 
 [project.urls]
 Homepage = "https://shangchenzhou.com/projects/upscale-a-video/"
-Repository = "https://github.com/sczhou/Upscale-A-Video"
+Repository = "https://github.com/emanuele-artioli/Upscale-A-Video"
 Paper = "https://arxiv.org/abs/2312.06640"
 
 [tool.setuptools.packages.find]
 include = ["upscale_a_video*", "models_video*", "llava*", "configs*"]
-where = ["."]
 
 [tool.setuptools.package-data]
 "*" = ["*.json", "*.yaml", "*.yml"]
