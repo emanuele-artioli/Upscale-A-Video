@@ -33,8 +33,8 @@ try:
     )
     from .resnet import InflatedConv3d
     from .temporal_module import TemporalModule3D, EmptyTemporalModule3D
-except:
-    from unet_blocks import (
+except ImportError:
+    from models_video.unet_blocks import (
         CrossAttnDownBlock3D,
         CrossAttnUpBlock3D,
         DownBlock3D,
@@ -43,8 +43,8 @@ except:
         get_down_block,
         get_up_block,
     )
-    from resnet import InflatedConv3d
-    from temporal_module import TemporalModule3D, EmptyTemporalModule3D
+    from models_video.resnet import InflatedConv3d
+    from models_video.temporal_module import TemporalModule3D, EmptyTemporalModule3D
     
 from rotary_embedding_torch import RotaryEmbedding
 

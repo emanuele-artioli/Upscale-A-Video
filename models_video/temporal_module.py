@@ -17,9 +17,9 @@ try:
     from .diffusers_attention import CrossAttention
     from .resnet import Downsample3D, Upsample3D, InflatedConv3d, ResnetBlock3D, ResnetBlock3DCNN
 
-except:
-    from diffusers_attention import CrossAttention
-    from resnet import Downsample3D, Upsample3D, InflatedConv3d, ResnetBlock3D, ResnetBlock3DCNN
+except ImportError:
+    from models_video.diffusers_attention import CrossAttention
+    from models_video.resnet import Downsample3D, Upsample3D, InflatedConv3d, ResnetBlock3D, ResnetBlock3DCNN
 
 from einops import rearrange, repeat
 import math

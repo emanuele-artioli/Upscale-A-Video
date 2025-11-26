@@ -33,15 +33,15 @@ try:
     )
     from .resnet import InflatedConv3d, ResnetBlock3D, Fuse_sft_block, Fuse_CA_block, ResnetBlock3D_plus
     from .temporal_module import TemporalModule3DVAE, EmptyTemporalModule3D
-except:
-    from unet_blocks import (
+except ImportError:
+    from models_video.unet_blocks import (
         UNetMidBlock3D,
         UNetMidBlock3D_plus,
         get_down_block,
         get_up_block,
     )
-    from resnet import InflatedConv3d, ResnetBlock3D, Fuse_sft_block, Fuse_CA_block, ResnetBlock3D_plus
-    from temporal_module import TemporalModule3DVAE, EmptyTemporalModule3D
+    from models_video.resnet import InflatedConv3d, ResnetBlock3D, Fuse_sft_block, Fuse_CA_block, ResnetBlock3D_plus
+    from models_video.temporal_module import TemporalModule3DVAE, EmptyTemporalModule3D
     
 @dataclass
 class DecoderOutput(BaseOutput):

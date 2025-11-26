@@ -9,11 +9,12 @@ from torch import nn
 try:
     from .attention import Transformer3DModel
     from .resnet import Downsample3D, ResnetBlock3D, Upsample3D, ResnetBlock3D_plus
-except:
-    from attention import Transformer3DModel
-    from resnet import Downsample3D, ResnetBlock3D, Upsample3D, ResnetBlock3D_plus
+    from .diffusers_attention import AttentionBlock
+except ImportError:
+    from models_video.attention import Transformer3DModel
+    from models_video.resnet import Downsample3D, ResnetBlock3D, Upsample3D, ResnetBlock3D_plus
+    from models_video.diffusers_attention import AttentionBlock
 
-from diffusers.models.attention import AttentionBlock
 from einops import rearrange
 
 def get_down_block(

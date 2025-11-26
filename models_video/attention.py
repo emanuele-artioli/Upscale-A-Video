@@ -19,8 +19,8 @@ from diffusers.models.attention import FeedForward, AdaLayerNorm
 
 try:
     from .resnet import ResnetBlock3DCNN
-except:
-    from resnet import ResnetBlock3DCNN
+except ImportError:
+    from models_video.resnet import ResnetBlock3DCNN
 
 from rotary_embedding_torch import RotaryEmbedding
 from typing import Callable, Optional

@@ -31,9 +31,9 @@ from diffusers.models.modeling_utils import ModelMixin
 try:
     from .vae_video import Decoder, DecoderOutput, DiagonalGaussianDistribution, Encoder 
     from .resnet import InflatedConv3d
-except:
-    from vae_video import Decoder, DecoderOutput, DiagonalGaussianDistribution, Encoder
-    from resnet import InflatedConv3d
+except ImportError:
+    from models_video.vae_video import Decoder, DecoderOutput, DiagonalGaussianDistribution, Encoder
+    from models_video.resnet import InflatedConv3d
 
 @dataclass
 class AutoencoderKLOutput(BaseOutput):
