@@ -82,8 +82,12 @@ def download_models(pretrained_path: Path, quiet: bool = False) -> None:
             quiet=quiet,
             use_cookies=False,
         )
+        
+        # gdown may create a nested folder or download a zip file
+        # Handle both cases
+        _post_process_download(pretrained_path, quiet)
+        
     except Exception as e:
-        # If folder download fails, try downloading individual files
         if not quiet:
             print(f"Folder download failed ({e}), trying individual files...")
         _download_individual_files(pretrained_path, quiet)
@@ -98,6 +102,119 @@ def download_models(pretrained_path: Path, quiet: bool = False) -> None:
     
     if not quiet:
         print("Download complete!")
+
+
+def _post_process_download(pretrained_path: Path, quiet: bool = False) -> None:
+    """
+    Post-process downloaded files: extract zips and move files to correct location.
+    
+    gdown may create various nested structures:
+    - pretrained_path/upscale_a_video/upscale_a_video.zip
+    - pretrained_path/upscale_a_video/upscale_a_video/{actual_folders}
+    
+    The zip file contains:
+    - upscale_a_video/{low_res_scheduler, propagator, scheduler, etc.}
+    - __MACOSX/...
+    
+    We need to end up with:
+    - pretrained_path/{low_res_scheduler, propagator, scheduler, etc.}
+    """
+    import shutil
+    
+    # First, find and extract all zip files
+    for zip_file in list(pretrained_path.rglob("*.zip")):
+        if not quiet:
+            print(f"Extracting {zip_file.name}...")
+        
+        # Extract to a temp location first
+        temp_extract = pretrained_path / "_temp_extract"
+        temp_extract.mkdir(exist_ok=True)
+        
+        with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+            zip_ref.extractall(temp_extract)
+        
+        # Remove the zip file after extraction
+        zip_file.unlink()
+        
+        # Move extracted contents to the right place
+        # The zip contains upscale_a_video/{folders} and __MACOSX/
+        for item in temp_extract.iterdir():
+            if item.name == "__MACOSX":
+                # Remove Mac metadata folder
+                shutil.rmtree(item)
+            elif item.name == "upscale_a_video" and item.is_dir():
+                # This is the nested folder containing the actual model folders
+                for subitem in item.iterdir():
+                    if subitem.name.startswith("."):
+                        # Skip hidden files like .DS_Store
+                        if subitem.is_file():
+                            subitem.unlink()
+                        else:
+                            shutil.rmtree(subitem)
+                        continue
+                    dest = pretrained_path / subitem.name
+                    if dest.exists():
+                        if dest.is_dir():
+                            shutil.rmtree(dest)
+                        else:
+                            dest.unlink()
+                    shutil.move(str(subitem), str(dest))
+                # Remove the now-empty nested folder
+                shutil.rmtree(item)
+            else:
+                # Move other items directly
+                dest = pretrained_path / item.name
+                if dest.exists():
+                    if dest.is_dir():
+                        shutil.rmtree(dest)
+                    else:
+                        dest.unlink()
+                shutil.move(str(item), str(dest))
+        
+        # Remove temp extract folder
+        if temp_extract.exists():
+            shutil.rmtree(temp_extract)
+    
+    # Clean up any remaining nested upscale_a_video folders (from gdown folder download)
+    nested_dir = pretrained_path / "upscale_a_video"
+    while nested_dir.exists() and nested_dir.is_dir():
+        # Check if the nested dir has the expected subdirs
+        has_expected_content = any(
+            (nested_dir / d).exists() for d in EXPECTED_DIRS
+        )
+        if has_expected_content:
+            if not quiet:
+                print("Moving files from nested folder...")
+            for item in list(nested_dir.iterdir()):
+                if item.name.startswith("."):
+                    if item.is_file():
+                        item.unlink()
+                    else:
+                        shutil.rmtree(item)
+                    continue
+                dest = pretrained_path / item.name
+                if dest.exists():
+                    if dest.is_dir():
+                        shutil.rmtree(dest)
+                    else:
+                        dest.unlink()
+                shutil.move(str(item), str(dest))
+            shutil.rmtree(nested_dir)
+        else:
+            # Go one level deeper
+            deeper = nested_dir / "upscale_a_video"
+            if deeper.exists():
+                nested_dir = deeper
+            else:
+                break
+    
+    # Clean up __MACOSX folders
+    for macos_dir in list(pretrained_path.rglob("__MACOSX")):
+        shutil.rmtree(macos_dir)
+    
+    # Clean up .DS_Store files
+    for ds_store in list(pretrained_path.rglob(".DS_Store")):
+        ds_store.unlink()
 
 
 def _download_individual_files(pretrained_path: Path, quiet: bool = False) -> None:

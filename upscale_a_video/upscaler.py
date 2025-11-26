@@ -29,6 +29,10 @@ from models_video.color_correction import wavelet_reconstruction, adaptive_insta
 from .download import ensure_models_downloaded, check_models_exist
 
 
+# Default cache directory for pretrained models
+DEFAULT_CACHE_DIR = Path.home() / ".cache" / "upscale_a_video"
+
+
 class UpscaleAVideo:
     """
     Upscale-A-Video: Temporal-Consistent Diffusion Model for Real-World Video Super-Resolution.
@@ -37,25 +41,34 @@ class UpscaleAVideo:
     
     Args:
         pretrained_path: Path to the pretrained model directory containing unet, vae, scheduler, etc.
+            If None, defaults to ~/.cache/upscale_a_video (models will be auto-downloaded there).
         device: Device to run the model on (e.g., "cuda:0", "cuda:1", "cpu").
         use_video_vae: Whether to use the video VAE (default: False uses 3D VAE).
         use_propagation: Whether to enable optical flow propagation for temporal consistency.
+        auto_download: Whether to automatically download models if not found (default: True).
         
     Example:
-        >>> upscaler = UpscaleAVideo("./pretrained_models/upscale_a_video", device="cuda:0")
+        >>> upscaler = UpscaleAVideo(device="cuda:0")  # Uses ~/.cache/upscale_a_video
         >>> upscaled = upscaler.upscale_frames(frames, noise_level=120)
+        
+        >>> upscaler = UpscaleAVideo("/path/to/models", device="cuda:0")  # Custom path
+        >>> upscaled = upscaler.upscale_frames(frames)
     """
     
     def __init__(
         self,
-        pretrained_path: str = "./pretrained_models/upscale_a_video",
+        pretrained_path: Optional[str] = None,
         device: str = "cuda:0",
         use_video_vae: bool = False,
         use_propagation: bool = False,
         auto_download: bool = True,
     ):
         self.device = device
-        self.pretrained_path = Path(pretrained_path)
+        # Use default cache directory if no path specified
+        if pretrained_path is None:
+            self.pretrained_path = DEFAULT_CACHE_DIR
+        else:
+            self.pretrained_path = Path(pretrained_path)
         self.use_video_vae = use_video_vae
         self.use_propagation = use_propagation
         self.auto_download = auto_download
